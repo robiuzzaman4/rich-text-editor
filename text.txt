@@ -1,0 +1,98 @@
+<Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+              .run()
+          }
+          className="h-8 px-2"
+        >
+          <Table className="size-4 mr-1" />
+          <span className="text-xs">Insert</span>
+        </Button> 
+
+        {state.isTableActive && (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().addColumnBefore().run()}
+              className="h-8 px-2"
+            >
+              <Plus className="size-4 mr-1" />
+              <span className="text-xs">Col Left</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              className="h-8 px-2"
+            >
+              <Plus className="size-4 mr-1" />
+              <span className="text-xs">Col Right</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+              className="h-8 px-2"
+            >
+              <Minus className="size-4 mr-1" />
+              <span className="text-xs">Col</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().addRowBefore().run()}
+              className="h-8 px-2"
+            >
+              <Plus className="size-4 mr-1" />
+              <span className="text-xs">Row Above</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              className="h-8 px-2"
+            >
+              <Plus className="size-4 mr-1" />
+              <span className="text-xs">Row Below</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().deleteRow().run()}
+              className="h-8 px-2"
+            >
+              <Minus className="size-4 mr-1" />
+              <span className="text-xs">Row</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().mergeCells().run()}
+              className="h-8 px-2"
+            >
+              <span className="text-xs">Merge</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor.chain().focus().splitCell().run()}
+              className="h-8 px-2"
+            >
+              <span className="text-xs">Split</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => editor.chain().focus().deleteTable().run()}
+              className="size-8"
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </>
+        )} 
