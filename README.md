@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tiptap Rich Text Editor with Math Support
 
-## Getting Started
+## ✨ Overview
 
-First, run the development server:
+**Tiptap Editor** is a feature-rich, minimal, and fully customizable rich text editor built using **Next.js**, **React**, and the **Tiptap** headless editor framework.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The key feature of this editor is the seamless integration of **mathematical notation** using the **`@tiptap/extension-mathematics`** extension and the **KaTeX** rendering library. This allows users to write and display complex mathematical equations using **LaTeX** syntax directly within the editor.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+![Thumbnail](https://i.ibb.co/LDtYxRpx/Group-2.png)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Key Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* **LaTeX/KaTeX Support:** Effortlessly insert and render mathematical equations.
+* **Rich Text Toolkit:** Includes standard features like lists, headings, bold, italics, tables, and text alignment, provided by the **`@tiptap/starter-kit`**.
+* **Advanced Text Styling:** Supports **Subscript**, **Superscript**, and **Typography** extensions.
+* **Modern Stack:** Built with **Next.js 16.0.7** (using the new React Compiler) and styled with **Tailwind CSS 4**.
+* **Accessible Components:** Utilizes **Radix UI** for high-quality, accessible components (Popover, Select, Tooltip, etc.).
 
-## Learn More
+## ⚙️ Installation & Setup
 
-To learn more about Next.js, take a look at the following resources:
+1.  **Clone the Repository (Optional):**
+    ```bash
+    git clone https://github.com/robiuzzaman4/rich-text-editor
+    cd tiptap-editor
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2.  **Install Dependencies:**
+    All necessary packages, including Tiptap extensions and KaTeX, are listed in `package.json`.
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3.  **Run the Development Server:**
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    ```
 
-## Deploy on Vercel
+    The editor will be accessible at: `http://localhost:3000`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📦 Core Technologies
+
+| Category | Package | Version (as of `package.json`) | Description |
+| :--- | :--- | :--- | :--- |
+| **Frontend** | `next` | `16.0.7` | Next.js framework for React applications. |
+| **Editor Core** | `@tiptap/react` | `3.12.1` | React bindings for the Tiptap editor. |
+| **Math Support** | `@tiptap/extension-mathematics` | `3.12.1` | Tiptap extension to handle math nodes. |
+| **Math Renderer** | `katex` | `0.16.25` | High-speed, high-quality math typesetting library. |
+| **Styling** | `tailwindcss` | `^4` | Utility-first CSS framework. |
+| **Components** | `@radix-ui/*` | Various | Accessible, unstyled UI primitives. |
+
+
+## 📝 Scripts
+
+| Script | Command | Description |
+| :--- | :--- | :--- |
+| `dev` | `next dev` | Starts the Next.js development server. |
+| `build` | `next build` | Compiles the application for production deployment. |
+| `start` | `next start` | Starts the Next.js production server. |
+| `lint` | `eslint` | Runs the linter to check code quality. |
+
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
