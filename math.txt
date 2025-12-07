@@ -1,0 +1,265 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useState, useCallback } from "react";
+import { Editor } from "@tiptap/react";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Textarea } from "../ui/textarea";
+
+type Props = {
+  editor: Editor | null;
+};
+
+export function ToolbarMathControls({ editor }: Props) {
+  const [inlineLatex, setInlineLatex] = useState("");
+  //   const [blockLatex, setBlockLatex] = useState("");
+  const [inlinePopoverOpen, setInlinePopoverOpen] = useState(false);
+  //   const [blockPopoverOpen, setBlockPopoverOpen] = useState(false);
+  const [editingMathPos, setEditingMathPos] = useState<number | null>(null);
+
+  // Expose these functions globally so the Mathematics extension can call them
+  const openInlineMathPopover = useCallback((latex: string, pos: number) => {
+    setInlineLatex(latex);
+    setEditingMathPos(pos);
+    setInlinePopoverOpen(true);
+    // setBlockPopoverOpen(false);
+  }, []);
+
+  const openBlockMathPopover = useCallback((latex: string, pos: number) => {
+    // setBlockLatex(latex);
+    setEditingMathPos(pos);
+    // setBlockPopoverOpen(true);
+    setInlinePopoverOpen(false);
+  }, []);
+
+  // Attach to window so Mathematics extension can access them
+  React.useEffect(() => {
+    (window as any).__openInlineMathPopover = openInlineMathPopover;
+    (window as any).__openBlockMathPopover = openBlockMathPopover;
+
+    return () => {
+      delete (window as any).__openInlineMathPopover;
+      delete (window as any).__openBlockMathPopover;
+    };
+  }, [openInlineMathPopover, openBlockMathPopover]);
+
+  // Insert inline math
+  const insertInlineMath = (latex: string) => {
+    if (!editor) return;
+    try {
+      if (
+        (editor as any).commands &&
+        (editor as any).commands.insertInlineMath
+      ) {
+        (editor as any).chain().focus().insertInlineMath({ latex }).run();
+        return;
+      }
+    } catch {}
+    editor
+      .chain()
+      .focus()
+      .insertContent({ type: "inlineMath", attrs: { latex } })
+      .run();
+  };
+
+  // Insert block math
+  //   const insertBlockMath = (latex: string) => {
+  //     if (!editor) return;
+  //     try {
+  //       if (
+  //         (editor as any).commands &&
+  //         (editor as any).commands.insertBlockMath
+  //       ) {
+  //         (editor as any).chain().focus().insertBlockMath({ latex }).run();
+  //         return;
+  //       }
+  //     } catch {}
+  //     editor
+  //       .chain()
+  //       .focus()
+  //       .insertContent({ type: "blockMath", attrs: { latex } })
+  //       .run();
+  //   };
+
+  // Update inline math at selection
+  const updateInlineMathAtPos = (pos: number, latex: string) => {
+    if (!editor) return;
+    try {
+      if (
+        (editor as any).commands &&
+        (editor as any).commands.updateInlineMath
+      ) {
+        editor
+          .chain()
+          .setNodeSelection(pos)
+          .updateInlineMath({ latex })
+          .focus()
+          .run();
+        return;
+      }
+    } catch {}
+    editor
+      .chain()
+      .setNodeSelection(pos)
+      .deleteSelection()
+      .insertContent({ type: "inlineMath", attrs: { latex } })
+      .focus()
+      .run();
+  };
+
+  // Update block math at pos
+  //   const updateBlockMathAtPos = (pos: number, latex: string) => {
+  //     if (!editor) return;
+  //     try {
+  //       if (
+  //         (editor as any).commands &&
+  //         (editor as any).commands.updateBlockMath
+  //       ) {
+  //         editor
+  //           .chain()
+  //           .setNodeSelection(pos)
+  //           .updateBlockMath({ latex })
+  //           .focus()
+  //           .run();
+  //         return;
+  //       }
+  //     } catch {}
+  //     editor
+  //       .chain()
+  //       .setNodeSelection(pos)
+  //       .deleteSelection()
+  //       .insertContent({ type: "blockMath", attrs: { latex } })
+  //       .focus()
+  //       .run();
+  //   };
+
+  // Handle inline math save
+  const handleInlineSave = () => {
+    if (editingMathPos !== null) {
+      updateInlineMathAtPos(editingMathPos, inlineLatex);
+    } else {
+      insertInlineMath(inlineLatex);
+    }
+    setInlineLatex("");
+    setEditingMathPos(null);
+    setInlinePopoverOpen(false);
+  };
+
+  // Handle block math save
+  //   const handleBlockSave = () => {
+  //     if (editingMathPos !== null) {
+  //       updateBlockMathAtPos(editingMathPos, blockLatex);
+  //     } else {
+  //       insertBlockMath(blockLatex);
+  //     }
+  //     setBlockLatex("");
+  //     setEditingMathPos(null);
+  //     setBlockPopoverOpen(false);
+  //   };
+
+  // Handle cancel
+  const handleInlineCancel = () => {
+    setInlineLatex("");
+    setEditingMathPos(null);
+    setInlinePopoverOpen(false);
+  };
+
+  //   const handleBlockCancel = () => {
+  //     setBlockLatex("");
+  //     setEditingMathPos(null);
+  //     setBlockPopoverOpen(false);
+  //   };
+
+  return (
+    <div className="flex gap-2 items-center">
+      {/* Inline math popover */}
+      <Popover open={inlinePopoverOpen} onOpenChange={setInlinePopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="secondary" size="sm">
+            Math 𝑓 
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px]" align="end">
+          <div className="flex flex-col gap-2">
+            <Textarea
+              value={inlineLatex}
+              onChange={(e) => setInlineLatex(e.target.value)}
+              placeholder="e.g. \int_0^\infty e^{-x} dx = 1"
+              className="border p-2 rounded h-24"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleInlineSave();
+                }
+              }}
+            />
+            <div className="flex gap-2 justify-end">
+              <Button onClick={handleInlineCancel} size="sm" variant="outline">
+                Cancel
+              </Button>
+              <Button onClick={handleInlineSave} size="sm">
+                {editingMathPos !== null ? "Update" : "Insert"}
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {/* Block math popover */}
+      {/* <Popover open={blockPopoverOpen} onOpenChange={setBlockPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="secondary" size="sm">
+            Block Σ
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[320px] max-h-[400]" align="end">
+          <div className="flex flex-col gap-2">
+            <Textarea
+              value={blockLatex}
+              onChange={(e) => setBlockLatex(e.target.value)}
+              placeholder="e.g. \int_0^\infty e^{-x} dx = 1"
+              className="border p-2 rounded h-24"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button onClick={handleBlockCancel} size="sm" variant="outline">
+                Cancel
+              </Button>
+              <Button onClick={handleBlockSave} size="sm">
+                {editingMathPos !== null ? "Update" : "Insert"}
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover> */}
+    </div>
+  );
+}
+
+=====================================================================================
+
+ Mathematics.configure({
+        inlineOptions: {
+          onClick: (node: any, pos: number) => {
+            const current = node?.attrs?.latex ?? "";
+            if ((window as any).__openInlineMathPopover) {
+              (window as any).__openInlineMathPopover(current, pos);
+            }
+          },
+        },
+        // blockOptions: {
+        //   onClick: (node: any, pos: number) => {
+        //     const current = node?.attrs?.latex ?? "";
+        //     if ((window as any).__openBlockMathPopover) {
+        //       (window as any).__openBlockMathPopover(current, pos);
+        //     }
+        //   },
+        // },
+        katexOptions: {
+          throwOnError: false,
+        },
+      }),
+
+=====================================================================================

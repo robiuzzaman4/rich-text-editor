@@ -28,7 +28,7 @@ import {
   LinkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+
 import {
   Select,
   SelectContent,
@@ -107,21 +107,21 @@ export function Toolbar({ editor }: ToolbarProps) {
       const heading = editor.isActive("heading", { level: 1 })
         ? 1
         : editor.isActive("heading", { level: 2 })
-        ? 2
-        : editor.isActive("heading", { level: 3 })
-        ? 3
-        : 0;
+          ? 2
+          : editor.isActive("heading", { level: 3 })
+            ? 3
+            : 0;
 
       // text align - using editor state attrs
       const textAlign = editor.isActive({ textAlign: "left" })
         ? "left"
         : editor.isActive({ textAlign: "center" })
-        ? "center"
-        : editor.isActive({ textAlign: "right" })
-        ? "right"
-        : editor.isActive({ textAlign: "justify" })
-        ? "justify"
-        : null;
+          ? "center"
+          : editor.isActive({ textAlign: "right" })
+            ? "right"
+            : editor.isActive({ textAlign: "justify" })
+              ? "justify"
+              : null;
 
       // table active (node name is `table`)
       const isTableActive = editor.isActive("table");
@@ -249,10 +249,10 @@ export function Toolbar({ editor }: ToolbarProps) {
             state.heading === 1
               ? "h1"
               : state.heading === 2
-              ? "h2"
-              : state.heading === 3
-              ? "h3"
-              : "paragraph"
+                ? "h2"
+                : state.heading === 3
+                  ? "h3"
+                  : "paragraph"
           }
           onValueChange={(value) => {
             if (value === "paragraph") {
