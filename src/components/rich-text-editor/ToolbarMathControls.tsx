@@ -17,23 +17,83 @@ type Props = {
 
 type ViewMode = "selection" | "custom";
 
-const COMMON_EQUATIONS = [
-  { label: "Fraction", latex: "\\frac{x}{y}" },
-  { label: "Square Root", latex: "\\sqrt{x}" },
-  { label: "Power", latex: "x^2" },
-  { label: "Subscript", latex: "x_1" },
-  { label: "Integral", latex: "\\int_0^\\infty f(x)dx" },
-  { label: "Sum", latex: "\\sum_{i=0}^n x_i" },
-  { label: "Limit", latex: "\\lim_{x \\to 0}" },
-  { label: "Matrix", latex: "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}" },
-  { label: "Quadratic", latex: "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}" },
-  { label: "Infinity", latex: "\\infty" },
-  { label: "Pi", latex: "\\pi" },
-  { label: "Theta", latex: "\\theta" },
-  { label: "Alpha", latex: "\\alpha" },
-  { label: "Beta", latex: "\\beta" },
-  { label: "Gamma", latex: "\\gamma" },
-  { label: "Delta", latex: "\\Delta" },
+type MathCategory = {
+  name: string;
+  items: { label: string; latex: string }[];
+};
+
+const MATH_GROUPS: MathCategory[] = [
+  {
+    name: "Common",
+    items: [
+      { label: "Fraction", latex: "\\frac{x}{y}" },
+      { label: "Power", latex: "x^2" },
+      { label: "Square Root", latex: "\\sqrt{x}" },
+      { label: "Sum", latex: "\\sum_{i=0}^n x_i" },
+      { label: "Integral", latex: "\\int_0^\\infty f(x)dx" },
+    ],
+  },
+  {
+    name: "Accents",
+    items: [
+      { label: "Hat", latex: "\\hat{a}" },
+      { label: "Bar", latex: "\\bar{a}" },
+      { label: "Dot", latex: "\\dot{a}" },
+      { label: "Vec", latex: "\\vec{a}" },
+      { label: "Tilde", latex: "\\tilde{a}" },
+      { label: "Underline", latex: "\\underline{a}" },
+    ],
+  },
+  {
+    name: "Delimiters",
+    items: [
+      { label: "Parentheses", latex: "(x)" },
+      { label: "Brackets", latex: "[x]" },
+      { label: "Braces", latex: "\\{x\\}" },
+      { label: "Angle", latex: "\\langle x \\rangle" },
+      { label: "Pipe", latex: "|x|" },
+      { label: "Floor", latex: "\\lfloor x \\rfloor" },
+      { label: "Ceil", latex: "\\lceil x \\rceil" },
+    ],
+  },
+  {
+    name: "Environments",
+    items: [
+      { label: "Matrix (2x2)", latex: "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}" },
+      { label: "Cases", latex: "f(x) = \\begin{cases} x & x \\ge 0 \\\\ -x & x < 0 \\end{cases}" },
+      { label: "Aligned", latex: "\\begin{aligned} a &= b + c \\\\ &= d \\end{aligned}" },
+      { label: "Bmatrix", latex: "\\begin{Bmatrix} a & b \\\\ c & d \\end{Bmatrix}" },
+      { label: "Vmatrix", latex: "\\begin{Vmatrix} a & b \\\\ c & d \\end{Vmatrix}" },
+    ],
+  },
+  {
+    name: "Logic & Sets",
+    items: [
+      { label: "For All", latex: "\\forall" },
+      { label: "Exists", latex: "\\exists" },
+      { label: "In", latex: "\\in" },
+      { label: "Not In", latex: "\\notin" },
+      { label: "Subset", latex: "\\subset" },
+      { label: "Union", latex: "\\cup" },
+      { label: "Intersection", latex: "\\cap" },
+      { label: "Infinity", latex: "\\infty" },
+      { label: "Implies", latex: "\\implies" },
+    ],
+  },
+  {
+    name: "Greek Letters",
+    items: [
+      { label: "Alpha", latex: "\\alpha" },
+      { label: "Beta", latex: "\\beta" },
+      { label: "Gamma", latex: "\\gamma" },
+      { label: "Delta", latex: "\\Delta" },
+      { label: "Theta", latex: "\\theta" },
+      { label: "Pi", latex: "\\pi" },
+      { label: "Sigma", latex: "\\sigma" },
+      { label: "Omega", latex: "\\Omega" },
+      { label: "Phi", latex: "\\phi" },
+    ],
+  },
 ];
 
 export function ToolbarMathControls({ editor }: Props) {
@@ -50,21 +110,21 @@ export function ToolbarMathControls({ editor }: Props) {
     setInlinePopoverOpen(true);
   }, []);
 
-  const openBlockMathPopover = useCallback((latex: string, pos: number) => {
-    setEditingMathPos(pos);
-    setInlinePopoverOpen(false);
-  }, []);
+  // const openBlockMathPopover = useCallback((latex: string, pos: number) => {
+  //   setEditingMathPos(pos);
+  //   setInlinePopoverOpen(false);
+  // }, []);
 
   // Attach to window so Mathematics extension can access them
   useEffect(() => {
     (window as any).__openInlineMathPopover = openInlineMathPopover;
-    (window as any).__openBlockMathPopover = openBlockMathPopover;
+    // (window as any).__openBlockMathPopover = openBlockMathPopover;
 
     return () => {
       delete (window as any).__openInlineMathPopover;
-      delete (window as any).__openBlockMathPopover;
+      // delete (window as any).__openBlockMathPopover;
     };
-  }, [openInlineMathPopover, openBlockMathPopover]);
+  }, [openInlineMathPopover]);
 
   const insertInlineMath = (latex: string) => {
     if (!editor) return;
@@ -152,31 +212,40 @@ export function ToolbarMathControls({ editor }: Props) {
             Math 𝑓
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[340px]" align="end">
+        <PopoverContent className="w-[400px]" align="end">
           {viewMode === "selection" ? (
             <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto p-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:bg-primary/20">
-                {COMMON_EQUATIONS.map((eq, i) => (
-                  <button
-                    key={i}
-                    className="flex flex-col items-center justify-center p-2 rounded hover:bg-muted border transition-colors aspect-square"
-                    onClick={() => handleSelectEquation(eq.latex)}
-                    title={eq.label}
-                  >
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: katex.renderToString(eq.latex, {
-                          throwOnError: false,
-                          displayMode: false,
-                        }),
-                      }}
-                    />
-                    {/* <span className="text-[10px] text-muted-foreground mt-1 truncate w-full text-center">{eq.label}</span> */}
-                  </button>
+              <div className="max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:bg-primary/20">
+                {MATH_GROUPS.map((group, groupIndex) => (
+                  <div key={groupIndex} className="mb-4 last:mb-0">
+                    <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+                      {group.name}
+                    </h4>
+                    <div className="grid grid-cols-3 gap-2">
+                      {group.items.map((eq, i) => (
+                        <button
+                          key={i}
+                          className="flex flex-col items-center justify-center p-2 rounded hover:bg-muted border transition-colors aspect-square bg-card"
+                          onClick={() => handleSelectEquation(eq.latex)}
+                          title={eq.label}
+                        >
+                          <span
+                            className="flex items-center justify-center w-full h-full"
+                            dangerouslySetInnerHTML={{
+                              __html: katex.renderToString(eq.latex, {
+                                throwOnError: false,
+                                displayMode: false,
+                              }),
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
               <Button
-                className="w-full"
+                className="w-full mt-2"
                 onClick={() => setViewMode("custom")}
                 variant="default"
               >
@@ -187,7 +256,9 @@ export function ToolbarMathControls({ editor }: Props) {
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="font-medium text-sm">
-                  {editingMathPos !== null ? "Edit Equation" : "Insert Equation"}
+                  {editingMathPos !== null
+                    ? "Edit Equation"
+                    : "Insert Equation"}
                 </span>
                 {editingMathPos === null && (
                   <Button
