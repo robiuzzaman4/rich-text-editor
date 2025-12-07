@@ -19,6 +19,7 @@ import { Toolbar } from "./Toolbar";
 import "katex/dist/katex.min.css";
 import { Mathematics } from "@tiptap/extension-mathematics";
 import { toast } from "sonner";
+import Highlight from "@tiptap/extension-highlight";
 
 export default function Editor() {
   const [content, setContent] = useState("");
@@ -29,6 +30,7 @@ export default function Editor() {
       Mathematics.configure({
         inlineOptions: {
           onClick: (node: any, pos: number) => {
+
             const current = node?.attrs?.latex ?? "";
             if ((window as any).__openInlineMathPopover) {
               (window as any).__openInlineMathPopover(current, pos);
@@ -48,6 +50,7 @@ export default function Editor() {
         },
       }),
 
+      Highlight.configure({ multicolor: true }),
       Underline,
       Link.configure({
         openOnClick: false,

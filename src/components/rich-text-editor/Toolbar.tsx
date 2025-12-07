@@ -26,6 +26,8 @@ import {
   Subscript,
   SuperscriptIcon,
   LinkIcon,
+  Highlighter,
+  Ban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -58,6 +60,7 @@ type ToolbarState = {
   isTableActive: boolean;
   canUndo: boolean;
   canRedo: boolean;
+  highlight: boolean;
 };
 
 interface ToolbarProps {
@@ -81,6 +84,7 @@ export function Toolbar({ editor }: ToolbarProps) {
     isTableActive: false,
     canUndo: false,
     canRedo: false,
+    highlight: false,
   }));
 
   const lastRef = useRef<ToolbarState | null>(null);
@@ -102,6 +106,7 @@ export function Toolbar({ editor }: ToolbarProps) {
       const orderedList = editor.isActive("orderedList");
       const subScript = editor.isActive("subscript");
       const superScript = editor.isActive("superscript");
+      const highlight = editor.isActive("highlight");
 
       // heading vs paragraph
       const heading = editor.isActive("heading", { level: 1 })
@@ -146,8 +151,12 @@ export function Toolbar({ editor }: ToolbarProps) {
         isTableActive,
         canUndo,
         canRedo,
+        highlight,
       };
     };
+
+    console.log('state', state.highlight);
+
 
     // update only when changed (shallow compare)
     const maybeUpdate = () => {
@@ -202,8 +211,6 @@ export function Toolbar({ editor }: ToolbarProps) {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
     }
   };
-
-  console.log("state", state.subScript);
 
   return (
     <div className="border-b bg-background p-2 sticky top-0 z-10">
@@ -415,6 +422,68 @@ export function Toolbar({ editor }: ToolbarProps) {
             <p>Superscript</p>
           </TooltipContent>
         </Tooltip>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "size-8",
+                state.highlight && "bg-primary/10 text-primary"
+              )}
+            >
+              <Highlighter className="size-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-fit p-2">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-medium text-muted-foreground px-1">
+                Highlight Color
+              </p>
+              <div className="grid grid-cols-6 gap-1">
+                {[
+                  { color: "#ffc078", md: "Orange" },
+                  { color: "#8ce99a", md: "Green" },
+                  { color: "#74c0fc", md: "Blue" },
+                  { color: "#faa2c1", md: "Pink" },
+                  { color: "#fcc419", md: "Yellow" },
+                  { color: "#b197fc", md: "Purple" },
+                ].map(({ color, md }) => (
+                  <Tooltip key={color}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-6 h-6 p-0 rounded-sm border-muted-foreground/20 hover:scale-110 transition-transform"
+                        style={{ backgroundColor: color }}
+                        onClick={() =>
+                          editor.chain().focus().toggleHighlight({ color }).run()
+                        }
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{md}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+
+                <Tooltip key="remove-color">
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      className="size-6 p-0 rounded-sm border-muted-foreground/20 hover:text-destructive hover:scale-110 transition-transform"
+                      onClick={() => editor.chain().focus().unsetHighlight().run()}>
+                      <Ban className="size-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Remove Color</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <div className="h-8 w-px bg-border mx-1" />
 
@@ -686,26 +755,6 @@ export function Toolbar({ editor }: ToolbarProps) {
                     <Trash className="h-4 w-4 mr-2" />
                     Delete Row
                   </Button>
-                  {/* <Button
-                    className="justify-start"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => editor.chain().focus().mergeCells().run()}
-                    disabled={!editor.can().mergeCells()}
-                  >
-                    <Merge className="h-4 w-4 mr-2" />
-                    Merge Cells
-                  </Button>
-                  <Button
-                    className="justify-start"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => editor.chain().focus().splitCell().run()}
-                    disabled={!editor.can().splitCell()}
-                  >
-                    <Split className="h-4 w-4 mr-2" />
-                    Split Cell
-                  </Button> */}
                   <Button
                     className="justify-start"
                     variant="ghost"
