@@ -17,8 +17,8 @@ import {
   Table,
   Code,
   Quote,
-  Undo,
-  Redo,
+  Undo2,
+  Redo2,
   TableProperties,
   Columns3,
   Trash,
@@ -224,7 +224,7 @@ export function Toolbar({ editor }: ToolbarProps) {
               disabled={!state.canUndo}
               className={cn("size-8")}
             >
-              <Undo className="size-4" />
+              <Undo2 className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -241,7 +241,7 @@ export function Toolbar({ editor }: ToolbarProps) {
               disabled={!state.canRedo}
               className={cn("size-8")}
             >
-              <Redo className="size-4" />
+              <Redo2 className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
