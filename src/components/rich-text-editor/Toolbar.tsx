@@ -441,7 +441,7 @@ export function Toolbar({ editor }: ToolbarProps) {
               <p className="text-xs font-medium text-muted-foreground px-1">
                 Highlight Color
               </p>
-              <div className="grid grid-cols-6 gap-1">
+              <div className="grid grid-cols-7 gap-1">
                 {[
                   { color: "#ffc078", md: "Orange" },
                   { color: "#8ce99a", md: "Green" },
@@ -477,7 +477,7 @@ export function Toolbar({ editor }: ToolbarProps) {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Remove Color</p>
+                    <p>Remove</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
