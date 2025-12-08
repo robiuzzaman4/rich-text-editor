@@ -221,23 +221,17 @@ export function ToolbarMathControls({ editor }: Props) {
                     <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                       {group.name}
                     </h4>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-5 gap-2">
                       {group.items.map((eq, i) => (
                         <button
                           key={i}
-                          className="flex flex-col items-center justify-center p-2 rounded hover:bg-muted border transition-colors aspect-square bg-card"
+                          className="flex flex-col items-center justify-center p-1 rounded hover:bg-muted border transition-colors aspect-square bg-card"
                           onClick={() => handleSelectEquation(eq.latex)}
-                          title={eq.label}
+                          title={eq.latex}
                         >
-                          <span
-                            className="flex items-center justify-center w-full h-full"
-                            dangerouslySetInnerHTML={{
-                              __html: katex.renderToString(eq.latex, {
-                                throwOnError: false,
-                                displayMode: false,
-                              }),
-                            }}
-                          />
+                          <span className="text-[10px] text-center leading-tight overflow-hidden text-ellipsis w-full px-0.5">
+                            {eq.label}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -291,6 +285,33 @@ export function ToolbarMathControls({ editor }: Props) {
                 <Button onClick={handleSave} size="sm">
                   {editingMathPos !== null ? "Update" : "Insert"}
                 </Button>
+              </div>
+
+              <div className="border-t pt-2 mt-1">
+                <p className="text-xs text-muted-foreground mb-2">Append Symbol:</p>
+                <div className="max-h-[200px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:bg-primary/20">
+                  {MATH_GROUPS.map((group, groupIndex) => (
+                    <div key={groupIndex} className="mb-4 last:mb-0">
+                      <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+                        {group.name}
+                      </h4>
+                      <div className="grid grid-cols-6 gap-2">
+                        {group.items.map((eq, i) => (
+                          <button
+                            key={i}
+                            className="flex flex-col items-center justify-center p-1 rounded hover:bg-muted border transition-colors aspect-square bg-card"
+                            onClick={() => setInlineLatex((prev) => prev ? `${prev} ${eq.latex}` : eq.latex)}
+                            title={eq.latex}
+                          >
+                            <span className="text-[10px] text-center leading-tight overflow-hidden text-ellipsis w-full px-0.5">
+                              {eq.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
