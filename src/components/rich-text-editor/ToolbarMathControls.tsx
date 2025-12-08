@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "../ui/textarea";
 import katex from "katex";
+import { Badge } from "../ui/badge";
 
 type Props = {
   editor: Editor | null;
@@ -221,19 +222,26 @@ export function ToolbarMathControls({ editor }: Props) {
                     <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                       {group.name}
                     </h4>
-                    <div className="grid grid-cols-5 gap-2">
-                      {group.items.map((eq, i) => (
-                        <button
-                          key={i}
-                          className="flex flex-col items-center justify-center p-1 rounded hover:bg-muted border transition-colors aspect-square bg-card"
-                          onClick={() => handleSelectEquation(eq.latex)}
-                          title={eq.latex}
-                        >
-                          <span className="text-[10px] text-center leading-tight overflow-hidden text-ellipsis w-full px-0.5">
+                    <div className="flex flex-wrap gap-2">
+                      {group.items.map((eq, i) => {
+                        return (
+                          <Badge title={eq.latex} key={i} onClick={() => handleSelectEquation(eq.latex)}
+                            className="hover:cursor-pointer"
+                            variant={
+                              group.name === "Common" ? "emerald" :
+                                group.name === "Accents" ? "orange" :
+                                  group.name === "Delimiters" ? "indigo" :
+                                    group.name === "Environments" ? "blue" :
+                                      group.name === "Logic & Sets" ? "yellow" :
+                                        group.name === "Greek Letters" ? "fuchsia" :
+                                          "default"
+                            }
+
+                          >
                             {eq.label}
-                          </span>
-                        </button>
-                      ))}
+                          </Badge>
+                        )
+                      })}
                     </div>
                   </div>
                 ))}
@@ -295,19 +303,27 @@ export function ToolbarMathControls({ editor }: Props) {
                       <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                         {group.name}
                       </h4>
-                      <div className="grid grid-cols-6 gap-2">
-                        {group.items.map((eq, i) => (
-                          <button
-                            key={i}
-                            className="flex flex-col items-center justify-center p-1 rounded hover:bg-muted border transition-colors aspect-square bg-card"
-                            onClick={() => setInlineLatex((prev) => prev ? `${prev} ${eq.latex}` : eq.latex)}
-                            title={eq.latex}
-                          >
-                            <span className="text-[10px] text-center leading-tight overflow-hidden text-ellipsis w-full px-0.5">
+                      <div className="flex flex-wrap gap-2">
+                        {group.items.map((eq, i) => {
+                          return (
+                            <Badge
+                              key={i}
+                              onClick={() => setInlineLatex((prev) => prev ? `${prev} ${eq.latex}` : eq.latex)}
+                              title={eq.latex}
+                              className="hover:cursor-pointer"
+                              variant={
+                                group.name === "Common" ? "emerald" :
+                                  group.name === "Accents" ? "orange" :
+                                    group.name === "Delimiters" ? "indigo" :
+                                      group.name === "Environments" ? "blue" :
+                                        group.name === "Logic & Sets" ? "yellow" :
+                                          group.name === "Greek Letters" ? "fuchsia" :
+                                            "default"
+                              }>
                               {eq.label}
-                            </span>
-                          </button>
-                        ))}
+                            </Badge>
+                          )
+                        })}
                       </div>
                     </div>
                   ))}
