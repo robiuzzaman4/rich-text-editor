@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,8 +9,8 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Textarea } from "../ui/textarea";
-import katex from "katex";
 import { Badge } from "../ui/badge";
+import { LATEX_LIST } from "./latex-list";
 
 type Props = {
   editor: Editor | null;
@@ -18,90 +18,54 @@ type Props = {
 
 type ViewMode = "selection" | "custom";
 
-type MathCategory = {
-  name: string;
-  items: { label: string; latex: string }[];
-};
-
-const MATH_GROUPS: MathCategory[] = [
-  {
-    name: "Common",
-    items: [
-      { label: "Fraction", latex: "\\frac{x}{y}" },
-      { label: "Power", latex: "x^2" },
-      { label: "Square Root", latex: "\\sqrt{x}" },
-      { label: "Sum", latex: "\\sum_{i=0}^n x_i" },
-      { label: "Integral", latex: "\\int_0^\\infty f(x)dx" },
-    ],
-  },
-  {
-    name: "Accents",
-    items: [
-      { label: "Hat", latex: "\\hat{a}" },
-      { label: "Bar", latex: "\\bar{a}" },
-      { label: "Dot", latex: "\\dot{a}" },
-      { label: "Vec", latex: "\\vec{a}" },
-      { label: "Tilde", latex: "\\tilde{a}" },
-      { label: "Underline", latex: "\\underline{a}" },
-    ],
-  },
-  {
-    name: "Delimiters",
-    items: [
-      { label: "Parentheses", latex: "(x)" },
-      { label: "Brackets", latex: "[x]" },
-      { label: "Braces", latex: "\\{x\\}" },
-      { label: "Angle", latex: "\\langle x \\rangle" },
-      { label: "Pipe", latex: "|x|" },
-      { label: "Floor", latex: "\\lfloor x \\rfloor" },
-      { label: "Ceil", latex: "\\lceil x \\rceil" },
-    ],
-  },
-  {
-    name: "Environments",
-    items: [
-      { label: "Matrix (2x2)", latex: "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}" },
-      { label: "Cases", latex: "f(x) = \\begin{cases} x & x \\ge 0 \\\\ -x & x < 0 \\end{cases}" },
-      { label: "Aligned", latex: "\\begin{aligned} a &= b + c \\\\ &= d \\end{aligned}" },
-      { label: "Bmatrix", latex: "\\begin{Bmatrix} a & b \\\\ c & d \\end{Bmatrix}" },
-      { label: "Vmatrix", latex: "\\begin{Vmatrix} a & b \\\\ c & d \\end{Vmatrix}" },
-    ],
-  },
-  {
-    name: "Logic & Sets",
-    items: [
-      { label: "For All", latex: "\\forall" },
-      { label: "Exists", latex: "\\exists" },
-      { label: "In", latex: "\\in" },
-      { label: "Not In", latex: "\\notin" },
-      { label: "Subset", latex: "\\subset" },
-      { label: "Union", latex: "\\cup" },
-      { label: "Intersection", latex: "\\cap" },
-      { label: "Infinity", latex: "\\infty" },
-      { label: "Implies", latex: "\\implies" },
-    ],
-  },
-  {
-    name: "Greek Letters",
-    items: [
-      { label: "Alpha", latex: "\\alpha" },
-      { label: "Beta", latex: "\\beta" },
-      { label: "Gamma", latex: "\\gamma" },
-      { label: "Delta", latex: "\\Delta" },
-      { label: "Theta", latex: "\\theta" },
-      { label: "Pi", latex: "\\pi" },
-      { label: "Sigma", latex: "\\sigma" },
-      { label: "Omega", latex: "\\Omega" },
-      { label: "Phi", latex: "\\phi" },
-    ],
-  },
-];
-
 export function ToolbarMathControls({ editor }: Props) {
   const [inlineLatex, setInlineLatex] = useState("");
   const [inlinePopoverOpen, setInlinePopoverOpen] = useState(false);
   const [editingMathPos, setEditingMathPos] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("selection");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [cursorPosition, setCursorPosition] = useState<number | null>(null);
+
+  const handleCursorUpdate = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    setCursorPosition(e.currentTarget.selectionStart);
+  };
+
+  const handleInsertSymbol = (symbol: string) => {
+    if (textareaRef.current) {
+      const start = textareaRef.current.selectionStart;
+      const end = textareaRef.current.selectionEnd;
+      const text = inlineLatex;
+      const before = text.substring(0, start);
+      const after = text.substring(end);
+      const newText = before + symbol + after;
+
+      setInlineLatex(newText);
+
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(start + symbol.length, start + symbol.length);
+          setCursorPosition(start + symbol.length);
+        }
+      }, 0);
+    } else {
+      setInlineLatex((prev) => prev ? `${prev} ${symbol}` : symbol);
+    }
+  };
+
+  useEffect(() => {
+    if (inlinePopoverOpen && viewMode === "custom") {
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const length = textareaRef.current.value.length;
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(length, length);
+          setCursorPosition(length);
+        }
+      }, 0);
+    }
+  }, [viewMode, inlinePopoverOpen]);
 
   // Expose these functions globally so the Mathematics extension can call them
   const openInlineMathPopover = useCallback((latex: string, pos: number) => {
@@ -110,11 +74,6 @@ export function ToolbarMathControls({ editor }: Props) {
     setViewMode("custom"); // Always open custom mode when editing
     setInlinePopoverOpen(true);
   }, []);
-
-  // const openBlockMathPopover = useCallback((latex: string, pos: number) => {
-  //   setEditingMathPos(pos);
-  //   setInlinePopoverOpen(false);
-  // }, []);
 
   // Attach to window so Mathematics extension can access them
   useEffect(() => {
@@ -217,7 +176,7 @@ export function ToolbarMathControls({ editor }: Props) {
           {viewMode === "selection" ? (
             <div className="flex flex-col gap-2">
               <div className="max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:bg-primary/20">
-                {MATH_GROUPS.map((group, groupIndex) => (
+                {LATEX_LIST.map((group, groupIndex) => (
                   <div key={groupIndex} className="mb-4 last:mb-0">
                     <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                       {group.name}
@@ -274,8 +233,12 @@ export function ToolbarMathControls({ editor }: Props) {
                 )}
               </div>
               <Textarea
+                ref={textareaRef}
                 value={inlineLatex}
                 onChange={(e) => setInlineLatex(e.target.value)}
+                onClick={handleCursorUpdate}
+                onKeyUp={handleCursorUpdate}
+                onSelect={handleCursorUpdate}
                 placeholder="e.g. \int_0^\infty e^{-x} dx = 1"
                 className="border p-2 rounded h-24 font-mono text-sm"
                 onKeyDown={(e) => {
@@ -298,7 +261,7 @@ export function ToolbarMathControls({ editor }: Props) {
               <div className="border-t pt-2 mt-1">
                 <p className="text-xs text-muted-foreground mb-2">Append Symbol:</p>
                 <div className="max-h-[200px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:bg-primary/20">
-                  {MATH_GROUPS.map((group, groupIndex) => (
+                  {LATEX_LIST.map((group, groupIndex) => (
                     <div key={groupIndex} className="mb-4 last:mb-0">
                       <h4 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                         {group.name}
@@ -308,7 +271,7 @@ export function ToolbarMathControls({ editor }: Props) {
                           return (
                             <Badge
                               key={i}
-                              onClick={() => setInlineLatex((prev) => prev ? `${prev} ${eq.latex}` : eq.latex)}
+                              onClick={() => handleInsertSymbol(eq.latex)}
                               title={eq.latex}
                               className="hover:cursor-pointer"
                               variant={
