@@ -108,7 +108,7 @@ export default function Editor() {
   console.log("content", content);
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col h-full bg-background shadow rounded-lg overflow-hidden relative">
+    <div className="max-w-5xl mx-auto flex flex-col h-full bg-background shadow rounded-lg overflow-hidden">
       <Toolbar editor={editor} />
 
       {/* Editor Area */}

@@ -44,6 +44,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ToolbarMathControls } from "./ToolbarMathControls";
 import { Input } from "../ui/input";
 import { ToolbarTableControls } from "./ToolbarTableControls";
+import { ToolbarMcqFormDialog } from "./ToolbarMcqFormDialog";
 
 type ToolbarState = {
   bold: boolean;
@@ -673,6 +674,11 @@ export function Toolbar({ editor }: ToolbarProps) {
 
         {/* Math */}
         <ToolbarMathControls editor={editor} />
+
+        <div className="h-8 w-px bg-border mx-1" />
+
+        {/* MCQ Form */}
+        <ToolbarMcqFormDialog editor={editor} />
       </div>
     </div>
   );
