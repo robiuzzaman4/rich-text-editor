@@ -675,10 +675,10 @@ export function Toolbar({ editor }: ToolbarProps) {
         {/* Math */}
         <ToolbarMathControls editor={editor} />
 
-        <div className="h-8 w-px bg-border mx-1" />
+        {/* <div className="h-8 w-px bg-border mx-1" /> */}
 
         {/* MCQ Form */}
-        <ToolbarMcqFormDialog editor={editor} />
+        {/* <ToolbarMcqFormDialog editor={editor} /> */}
       </div>
     </div>
   );

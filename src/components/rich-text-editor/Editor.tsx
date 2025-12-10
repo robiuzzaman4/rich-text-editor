@@ -26,12 +26,10 @@ export default function Editor({
   content,
   setContent,
   editorAreaClassName,
-  placeholder = "Start typing...",
 }: {
   content: string;
   setContent: React.Dispatch<React.SetStateAction<string>>;
   editorAreaClassName?: string;
-  placeholder?: string;
 }) {
 
 
@@ -71,7 +69,7 @@ export default function Editor({
       TableHeader,
       TableCell,
     ],
-    content: content || `<p>${placeholder}</p>`,
+    content: content,
     editorProps: {
       attributes: {
         class:
