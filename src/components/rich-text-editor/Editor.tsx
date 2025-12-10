@@ -20,9 +20,20 @@ import "katex/dist/katex.min.css";
 import { Mathematics } from "@tiptap/extension-mathematics";
 import { toast } from "sonner";
 import Highlight from "@tiptap/extension-highlight";
+import { cn } from "@/lib/utils";
 
-export default function Editor() {
-  const [content, setContent] = useState("");
+export default function Editor({
+  content,
+  setContent,
+  editorAreaClassName,
+  placeholder = "Start typing...",
+}: {
+  content: string;
+  setContent: React.Dispatch<React.SetStateAction<string>>;
+  editorAreaClassName?: string;
+  placeholder?: string;
+}) {
+
 
   const editor = useEditor({
     extensions: [
@@ -37,14 +48,6 @@ export default function Editor() {
             }
           },
         },
-        // blockOptions: {
-        //   onClick: (node: any, pos: number) => {
-        //     const current = node?.attrs?.latex ?? "";
-        //     if ((window as any).__openBlockMathPopover) {
-        //       (window as any).__openBlockMathPopover(current, pos);
-        //     }
-        //   },
-        // },
         katexOptions: {
           throwOnError: false,
         },
@@ -68,7 +71,7 @@ export default function Editor() {
       TableHeader,
       TableCell,
     ],
-    content: "<p>Start typing or paste your content here...</p>",
+    content: content || `<p>${placeholder}</p>`,
     editorProps: {
       attributes: {
         class:
@@ -83,41 +86,39 @@ export default function Editor() {
     immediatelyRender: false,
   });
 
+  // Sync content updates from parent if they differ significantly (e.g. loading saved state)
   useEffect(() => {
-    if (editor) {
-      const savedContent = localStorage.getItem("RICH_TEXT_EDITOR_CONTENT");
-      if (savedContent) {
-        editor.commands.setContent(savedContent);
+    if (editor && content && editor.getHTML() !== content) {
+      // Simple check to avoid loop, but might need more robust comparison if HTML varies slightly.
+      // For this use case (loading initial state), this is sufficient.
+      // We only update if the editor content is "empty" or default, OR if we strictly want to enforce parent state.
+      // To avoid cursor jumping while typing, we typically don't set content here unless it's a "reset" or "load".
+      // Let's assume the parent only sets 'content' initially or on reset.
+      if (editor.getText() === "" || content !== editor.getHTML()) {
+        // Check if it really needs update to avoid cursor reset on every keystroke if parent updates fast
+        // A common pattern is to only set if the editor is not focused? 
+        // For now, let's rely on the initial 'content' prop for the main load.
+        // If we really need reactive updates (like resetting the form), we do this:
+        editor.commands.setContent(content);
       }
     }
-  }, [editor]);
-
-  const handleSaveDocument = () => {
-    localStorage.setItem("RICH_TEXT_EDITOR_CONTENT", content);
-    toast.success("Document Saved");
-  };
+  }, [content, editor]);
 
   if (!editor) {
     return (
       <div className="flex items-center justify-center p-8">
-        Loading editor...
+        Loading content...
       </div>
     );
   }
 
-  console.log("content", content);
-
   return (
-    <div className="max-w-5xl mx-auto flex flex-col h-full bg-background shadow rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full bg-background shadow rounded-lg overflow-hidden border">
       <Toolbar editor={editor} />
 
       {/* Editor Area */}
-      <div className="flex-1 overflow-y-auto max-h-[600px]">
+      <div className={cn("flex-1 overflow-y-auto min-h-[150px]", editorAreaClassName)}>
         <EditorContent editor={editor} className="h-full" />
-      </div>
-
-      <div className="p-4 border-t w-full flex items-center justify-end">
-        <Button onClick={handleSaveDocument}>Save Document</Button>
       </div>
     </div>
   );
